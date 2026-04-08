@@ -85,12 +85,12 @@ flowchart LR
 ## Refresh Schedule
 
 - The data repository workflow runs on this cron:
-  `17 */6 * * *`
-- That means it runs every 6 hours at minute `17`.
-- In UTC, that is:
-  `00:17`, `06:17`, `12:17`, `18:17`
-- In China Standard Time (`UTC+8`), that is:
-  `08:17`, `14:17`, `20:17`, and `02:17` on the next day
+  `*/5 * * * *`
+- That means it runs every 5 minutes.
+- GitHub Actions cron schedules do not support 2-minute intervals; 5 minutes is the minimum supported cadence.
+- In UTC, examples are:
+  `00:00`, `00:05`, `00:10`, `00:15`, ...
+- In China Standard Time (`UTC+8`), the cadence is the same every 5 minutes.
 - The workflow can also be triggered manually from GitHub Actions with `workflow_dispatch`.
 
 ## Operational Notes
