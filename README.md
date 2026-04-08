@@ -31,6 +31,48 @@ A legal-first AI intelligence website focused on cases, policy, enforcement, and
 - Local cache persistence is best-effort, which keeps Vercel serverless deployments working even though the filesystem is ephemeral.
 - `data/news-cache.json` is ignored by Git by default to avoid dirtying the repository on each refresh.
 
+## Deployment Flow
+
+- The main code repository is maintained in AtomGit and then mirrored to GitHub.
+- Vercel deploys the main site from the mirrored GitHub repository.
+- A separate public GitHub repository stores the news snapshot JSON:
+  `https://github.com/kylezhang/ai-legal-privacy-hub-data`
+- The main site reads that snapshot from:
+  `https://raw.githubusercontent.com/kylezhang/ai-legal-privacy-hub-data/main/news.json`
+
+## Why The Data Repo Is Separate
+
+- AtomGit is the source of truth for the main codebase, and its mirror process can overwrite the GitHub code repository.
+- Because of that mirror behavior, the main GitHub code repository is not a safe place to store independently updated data branches or files.
+- To avoid the mirror overwriting generated data, the news snapshot lives in its own GitHub repository and is updated there only.
+
+## Snapshot Update Pipeline
+
+1. GitHub Actions in `ai-legal-privacy-hub-data` runs `scripts/update-news.mjs`.
+2. The script fetches the fixed RSS feeds and, when `TAVILY_API_KEY` is available, Tavily-discovered global sources.
+3. The script merges new items into `news.json` and backfills Chinese titles and summaries.
+4. If `news.json` changed, the workflow commits and pushes the updated snapshot.
+5. The main site on Vercel serves that remote snapshot first and only falls back to live aggregation when the snapshot is unavailable.
+
+## Refresh Schedule
+
+- The data repository workflow runs on this cron:
+  `17 */6 * * *`
+- That means it runs every 6 hours at minute `17`.
+- In UTC, that is:
+  `00:17`, `06:17`, `12:17`, `18:17`
+- In China Standard Time (`UTC+8`), that is:
+  `08:17`, `14:17`, `20:17`, and `02:17` on the next day
+- The workflow can also be triggered manually from GitHub Actions with `workflow_dispatch`.
+
+## Operational Notes
+
+- `TAVILY_API_KEY` is configured as a GitHub Actions secret in the data repository.
+- The data repository does not need a custom GitHub token for commits; GitHub Actions uses the built-in `GITHUB_TOKEN`.
+- The main site can work without extra GitHub credentials because the data repository is public.
+- If desired, Vercel can still set `REMOTE_NEWS_DATA_URL` explicitly to make the data source easier to change later.
+- If desired, Vercel can also set `TAVILY_API_KEY` so the main site keeps global-source fallback capability even when the remote snapshot is temporarily unavailable.
+
 ## Getting Started
 
 First, install the dependencies:
