@@ -1,0 +1,30 @@
+'use client';
+
+import { useEffect } from 'react';
+
+export default function Error({
+  error,
+  reset,
+}: {
+  error: Error & { digest?: string };
+  reset: () => void;
+}) {
+  useEffect(() => {
+    console.error(error);
+  }, [error]);
+
+  return (
+    <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-slate-50 dark:bg-slate-950">
+      <h2 className="text-2xl font-black text-slate-900 dark:text-white mb-4 uppercase italic">Oops! Something went wrong</h2>
+      <p className="text-slate-600 dark:text-slate-400 mb-8 text-center max-w-md">
+        We encountered an error while loading this page. This might be due to a temporary network issue or a server-side problem.
+      </p>
+      <button
+        onClick={() => reset()}
+        className="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 transition-all uppercase tracking-widest text-sm"
+      >
+        Try again
+      </button>
+    </div>
+  );
+}
