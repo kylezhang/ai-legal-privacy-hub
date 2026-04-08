@@ -18,6 +18,8 @@
 
 body {
   color: rgb(var(--foreground-rgb));
+  font-family: "Avenir Next", "Segoe UI Variable", "Segoe UI", "PingFang SC",
+    "Hiragino Sans GB", "Noto Sans SC", sans-serif;
   background: linear-gradient(
       to bottom,
       transparent,

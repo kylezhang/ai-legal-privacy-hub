@@ -50,6 +50,14 @@ type TavilyResponse = {
   results?: TavilySearchResult[];
 };
 
+type RemoteNewsPayload =
+  | NewsItem[]
+  | {
+      version?: number;
+      lastSyncedAt?: string | null;
+      items?: NewsItem[];
+    };
+
 const parser = new Parser({
   headers: {
     'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
@@ -68,6 +76,11 @@ const TAVILY_API_KEY = process.env.TAVILY_API_KEY;
 const TAVILY_REFRESH_INTERVAL_MS = 12 * 60 * 60 * 1000;
 const TAVILY_RESULTS_PER_SEARCH = 3;
 const TAVILY_FETCH_TIMEOUT_MS = 8000;
+const REMOTE_NEWS_DATA_URL =
+  process.env.REMOTE_NEWS_DATA_URL ||
+  'https://raw.githubusercontent.com/kylezhang/ai-legal-privacy-hub-data/main/news.json';
+const PREFER_REMOTE_NEWS_DATA = process.env.PREFER_REMOTE_NEWS_DATA !== 'false';
+const REMOTE_NEWS_FETCH_TIMEOUT_MS = 8000;
 
 const TAVILY_SEARCHES: TavilySearchConfig[] = [
   {
@@ -577,8 +590,80 @@ async function fetchTavilyNewsItems(existingItems: NewsItem[], fallbackPublished
   return items;
 }
 
+function isNewsItem(value: unknown): value is NewsItem {
+  if (!value || typeof value !== 'object') {
+    return false;
+  }
+
+  const item = value as Partial<NewsItem>;
+  return (
+    typeof item.id === 'string' &&
+    typeof item.title === 'string' &&
+    typeof item.summary === 'string' &&
+    typeof item.url === 'string' &&
+    typeof item.source === 'string' &&
+    typeof item.publishedAt === 'string' &&
+    typeof item.category === 'string' &&
+    typeof item.region === 'string'
+  );
+}
+
+function parseRemoteNewsItems(payload: RemoteNewsPayload): NewsItem[] {
+  if (Array.isArray(payload)) {
+    return payload.filter(isNewsItem);
+  }
+
+  if (Array.isArray(payload.items)) {
+    return payload.items.filter(isNewsItem);
+  }
+
+  return [];
+}
+
+async function fetchRemoteNewsItems() {
+  if (!PREFER_REMOTE_NEWS_DATA || !REMOTE_NEWS_DATA_URL) {
+    return null;
+  }
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), REMOTE_NEWS_FETCH_TIMEOUT_MS);
+
+  try {
+    const response = await fetch(REMOTE_NEWS_DATA_URL, {
+      signal: controller.signal,
+      cache: 'no-store',
+      headers: {
+        Accept: 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.error('Remote news fetch failed:', response.status, response.statusText);
+      return null;
+    }
+
+    const payload = (await response.json()) as RemoteNewsPayload;
+    const items = parseRemoteNewsItems(payload);
+
+    return items.length > 0 ? items : null;
+  } catch (error: any) {
+    if (error?.name !== 'AbortError') {
+      console.error('Remote news fetch failed:', error.message || error);
+    }
+
+    return null;
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 export async function GET() {
   try {
+    const remoteItems = await fetchRemoteNewsItems();
+    if (remoteItems) {
+      return NextResponse.json(remoteItems.slice(0, RETURN_ITEMS_LIMIT));
+    }
+
     const cache = await readNewsCache();
     const knownItems = createKnownNewsIndex(cache.items);
 

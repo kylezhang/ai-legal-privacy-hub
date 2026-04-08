@@ -7,7 +7,7 @@ const CACHE_FILE = path.join(CACHE_DIR, 'news-cache.json');
 const CACHE_VERSION = 1;
 const MAX_CACHE_ITEMS = 200;
 
-type NewsCache = {
+export type NewsCache = {
   version: number;
   lastSyncedAt: string | null;
   items: NewsItem[];
@@ -21,7 +21,7 @@ function createEmptyCache(): NewsCache {
   };
 }
 
-function normalizeCache(cache: Partial<NewsCache> | null | undefined): NewsCache {
+export function normalizeNewsCache(cache: Partial<NewsCache> | null | undefined): NewsCache {
   return {
     version: CACHE_VERSION,
     lastSyncedAt: cache?.lastSyncedAt || null,
@@ -58,7 +58,7 @@ function mergeNewsItemFields(primary: NewsItem, secondary: NewsItem): NewsItem {
 export async function readNewsCache() {
   try {
     const raw = await readFile(CACHE_FILE, 'utf8');
-    return normalizeCache(JSON.parse(raw) as Partial<NewsCache>);
+    return normalizeNewsCache(JSON.parse(raw) as Partial<NewsCache>);
   } catch {
     return createEmptyCache();
   }
@@ -71,11 +71,15 @@ export async function writeNewsCache(items: NewsItem[], lastSyncedAt = new Date(
     items: sortByPublishedAtDesc(items).slice(0, MAX_CACHE_ITEMS),
   };
 
-  await mkdir(CACHE_DIR, { recursive: true });
+  try {
+    await mkdir(CACHE_DIR, { recursive: true });
 
-  const tempFile = `${CACHE_FILE}.tmp`;
-  await writeFile(tempFile, JSON.stringify(payload, null, 2), 'utf8');
-  await rename(tempFile, CACHE_FILE);
+    const tempFile = `${CACHE_FILE}.tmp`;
+    await writeFile(tempFile, JSON.stringify(payload, null, 2), 'utf8');
+    await rename(tempFile, CACHE_FILE);
+  } catch (error: any) {
+    console.warn('Failed to persist news cache:', error?.message || error);
+  }
 
   return payload;
 }
