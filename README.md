@@ -40,6 +40,34 @@ A legal-first AI intelligence website focused on cases, policy, enforcement, and
 - The main site reads that snapshot from:
   `https://raw.githubusercontent.com/kylezhang/ai-legal-privacy-hub-data/main/news.json`
 
+## Flow Diagram
+
+```mermaid
+flowchart LR
+  subgraph CodeFlow["Code Deployment Flow"]
+    local["Local Development"] --> atomgit["AtomGit Main Repo"]
+    atomgit --> githubMirror["GitHub Mirror Repo"]
+    githubMirror --> vercel["Vercel Build & Deploy"]
+    vercel --> site["Production Site"]
+  end
+
+  subgraph DataFlow["News Snapshot Flow"]
+    schedule["GitHub Actions Schedule\nEvery 6 Hours"] --> workflow["update-news.yml"]
+    workflow --> script["scripts/update-news.mjs"]
+    script --> rss["Fixed RSS Feeds"]
+    script --> tavily["Tavily Global Search"]
+    script --> snapshot["news.json in Data Repo"]
+    snapshot --> raw["Raw GitHub URL"]
+  end
+
+  raw --> api["/api/news on Vercel"]
+  api --> ui["Homepage News Feed"]
+
+  api -. Fallback if remote snapshot unavailable .-> localCache["Local Cache + Live Aggregation"]
+  localCache --> rss
+  localCache --> tavily
+```
+
 ## Why The Data Repo Is Separate
 
 - AtomGit is the source of truth for the main codebase, and its mirror process can overwrite the GitHub code repository.
