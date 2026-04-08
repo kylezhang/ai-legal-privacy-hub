@@ -6,8 +6,8 @@ import I18nProvider from "@/components/I18nProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "AI Legal & Privacy Insights",
-  description: "Real-time updates on global AI in legal field, data protection, and privacy.",
+  title: "AI Legal Cases & Policy Hub",
+  description: "Focused updates on AI enforcement, policy guidance, privacy oversight, and legal practice tools.",
 };
 
 export default function RootLayout({
@@ -16,7 +16,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="zh">
+    <html lang="zh-CN">
       <body className={inter.className}>
         <I18nProvider>{children}</I18nProvider>
       </body>

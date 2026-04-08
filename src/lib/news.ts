@@ -1,3 +1,9 @@
+export type NewsCategory =
+  | 'Case & Enforcement'
+  | 'Policy / Regulation'
+  | 'Compliance Guidance'
+  | 'Privacy / Data Protection';
+
 export interface NewsItem {
   id: string;
   title: string;
@@ -7,7 +13,7 @@ export interface NewsItem {
   url: string;
   source: string;
   publishedAt: string;
-  category: 'Data Protection' | 'Privacy' | 'AI Regulation' | 'General AI Law';
+  category: NewsCategory;
   region: string;
 }
 

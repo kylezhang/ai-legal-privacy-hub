@@ -64,18 +64,18 @@ export default function Home() {
 
           <div className="flex flex-wrap items-center justify-center gap-6 text-slate-400 dark:text-slate-500 border-t border-slate-100 dark:border-slate-800 pt-10 mt-4">
             <div className="flex items-center gap-2 group hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+              <Scale className="w-5 h-5" />
+              <span className="text-xs font-bold uppercase tracking-widest">{t('cat_case')}</span>
+            </div>
+            <div className="w-1 h-1 bg-slate-300 dark:bg-slate-700 rounded-full" />
+            <div className="flex items-center gap-2 group hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
               <ShieldCheck className="w-5 h-5" />
-              <span className="text-xs font-bold uppercase tracking-widest">{t('cat_data_protection')}</span>
+              <span className="text-xs font-bold uppercase tracking-widest">{t('cat_guidance')}</span>
             </div>
             <div className="w-1 h-1 bg-slate-300 dark:bg-slate-700 rounded-full" />
             <div className="flex items-center gap-2 group hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
               <Lock className="w-5 h-5" />
-              <span className="text-xs font-bold uppercase tracking-widest">{t('cat_privacy')}</span>
-            </div>
-            <div className="w-1 h-1 bg-slate-300 dark:bg-slate-700 rounded-full" />
-            <div className="flex items-center gap-2 group hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-              <Globe className="w-5 h-5" />
-              <span className="text-xs font-bold uppercase tracking-widest">{t('cat_ai_reg')}</span>
+              <span className="text-xs font-bold uppercase tracking-widest">{t('cat_privacy_data')}</span>
             </div>
           </div>
         </div>
@@ -123,7 +123,7 @@ export default function Home() {
             <span className="text-sm font-black tracking-tight text-slate-900 dark:text-white uppercase italic">AI LEGAL HUB</span>
           </div>
           <p className="text-slate-500 dark:text-slate-400 text-xs font-bold tracking-widest uppercase mb-4">
-            &copy; 2024 全球 AI 法律与隐私监测中心
+            &copy; {new Date().getFullYear()} 全球 AI 法律案例、政策与工具观察
           </p>
           <div className="flex items-center justify-center gap-6">
             <a href="#" className="text-slate-400 hover:text-blue-600 transition-colors"><Mail className="w-5 h-5" /></a>

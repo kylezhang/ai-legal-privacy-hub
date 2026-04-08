@@ -9,9 +9,10 @@ export default function NewsCard({ news }: { news: NewsItem }) {
   const { t, locale, formatCategory } = useI18n();
   const getIcon = (category: string) => {
     switch (category) {
-      case 'Data Protection': return <ShieldCheck className="w-4 h-4 text-blue-500" />;
-      case 'Privacy': return <Lock className="w-4 h-4 text-green-500" />;
-      case 'AI Regulation': return <Scale className="w-4 h-4 text-purple-500" />;
+      case 'Case & Enforcement': return <Scale className="w-4 h-4 text-rose-500" />;
+      case 'Policy / Regulation': return <Scale className="w-4 h-4 text-purple-500" />;
+      case 'Compliance Guidance': return <ShieldCheck className="w-4 h-4 text-blue-500" />;
+      case 'Privacy / Data Protection': return <Lock className="w-4 h-4 text-green-500" />;
       default: return <Globe className="w-4 h-4 text-gray-500" />;
     }
   };

@@ -1,14 +1,14 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
-import { NewsItem, getLatestNews } from '@/lib/news';
+import { NewsItem, getLatestNews, type NewsCategory } from '@/lib/news';
 import NewsCard from './NewsCard';
 import { RefreshCw, Filter, Search, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 import { useI18n } from './I18nProvider';
 
 export default function NewsList() {
-  const { t } = useI18n();
+  const { t, formatCategory } = useI18n();
   const [news, setNews] = useState<NewsItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<string>('All');
@@ -32,12 +32,26 @@ export default function NewsList() {
     fetchNews();
   }, []);
 
-  const categories = ['All', 'Data Protection', 'Privacy', 'AI Regulation', 'General AI Law'];
+  const categories: Array<'All' | NewsCategory> = [
+    'All',
+    'Case & Enforcement',
+    'Policy / Regulation',
+    'Compliance Guidance',
+    'Privacy / Data Protection',
+  ];
 
   const filteredNews = news.filter(item => {
     const matchesCategory = filter === 'All' || item.category === filter;
-    const matchesSearch = item.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                         item.summary.toLowerCase().includes(searchTerm.toLowerCase());
+    const searchableContent = [
+      item.title,
+      item.summary,
+      item.title_zh || '',
+      item.summary_zh || '',
+      item.source,
+    ]
+      .join(' ')
+      .toLowerCase();
+    const matchesSearch = searchableContent.includes(searchTerm.toLowerCase());
     return matchesCategory && matchesSearch;
   });
 
@@ -70,7 +84,7 @@ export default function NewsList() {
                     : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700'
                 }`}
               >
-                {cat === 'All' ? t('filter_all') : cat}
+                {cat === 'All' ? t('filter_all') : formatCategory(cat)}
               </button>
             ))}
             <button 

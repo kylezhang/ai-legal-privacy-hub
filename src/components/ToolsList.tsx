@@ -11,7 +11,18 @@ export default function ToolsList() {
   const getIcon = (cat: string) => {
     if (cat === 'Assessment') return <ShieldCheck className="w-4 h-4 text-green-600" />;
     if (cat === 'Framework') return <Layers className="w-4 h-4 text-purple-600" />;
+    if (cat === 'Testing Toolkit') return <ShieldCheck className="w-4 h-4 text-blue-600" />;
+    if (cat === 'Regulatory Tracker') return <BookOpen className="w-4 h-4 text-amber-600" />;
     return <BookOpen className="w-4 h-4 text-blue-600" />;
+  };
+
+  const getCategoryLabel = (cat: string) => {
+    if (locale === 'en') return cat;
+    if (cat === 'Assessment') return '评估工具';
+    if (cat === 'Framework') return '治理框架';
+    if (cat === 'Testing Toolkit') return '测试工具';
+    if (cat === 'Regulatory Tracker') return '监管追踪';
+    return cat;
   };
 
   return (
@@ -21,7 +32,7 @@ export default function ToolsList() {
           <div className="flex items-center gap-2 mb-3">
             <span className="flex items-center gap-1.5 text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 uppercase tracking-wider">
               {getIcon(tool.category)}
-              {tool.category}
+              {getCategoryLabel(tool.category)}
             </span>
             <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 uppercase tracking-wider">
               {tool.region}
@@ -52,4 +63,3 @@ export default function ToolsList() {
     </div>
   );
 }
-
