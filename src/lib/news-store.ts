@@ -43,6 +43,18 @@ function sortByPublishedAtDesc(items: NewsItem[]) {
   );
 }
 
+function mergeNewsItemFields(primary: NewsItem, secondary: NewsItem): NewsItem {
+  return {
+    ...secondary,
+    ...primary,
+    title: primary.title || secondary.title,
+    summary: primary.summary || secondary.summary,
+    title_zh: primary.title_zh || secondary.title_zh,
+    summary_zh: primary.summary_zh || secondary.summary_zh,
+    url: primary.url && primary.url !== '#' ? primary.url : secondary.url,
+  };
+}
+
 export async function readNewsCache() {
   try {
     const raw = await readFile(CACHE_FILE, 'utf8');
@@ -75,12 +87,17 @@ export function mergeNewsItems(existingItems: NewsItem[], incomingItems: NewsIte
     const key = getNewsKey(item);
     const current = merged.get(key);
 
-    if (
-      !current ||
-      new Date(item.publishedAt).getTime() > new Date(current.publishedAt).getTime()
-    ) {
+    if (!current) {
       merged.set(key, item);
+      continue;
     }
+
+    const currentTime = new Date(current.publishedAt).getTime();
+    const itemTime = new Date(item.publishedAt).getTime();
+    const preferred = itemTime >= currentTime ? item : current;
+    const fallback = itemTime >= currentTime ? current : item;
+
+    merged.set(key, mergeNewsItemFields(preferred, fallback));
   }
 
   return sortByPublishedAtDesc(Array.from(merged.values()));
