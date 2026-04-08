@@ -5,6 +5,7 @@ A legal-first AI intelligence website focused on cases, policy, enforcement, and
 ## Features
 
 - **Legal-Focused Feed**: Prioritizes AI regulation, privacy enforcement, compliance guidance, and official legal updates instead of general AI tech news.
+- **File-Based Cache**: News fetched from external sources is persisted into a local project cache file, and each refresh only merges newly discovered items to the front.
 - **Curated Policy Shelf**: Highlights foundational resources from the European Commission, EDPB, FTC, ICO, and NIST.
 - **Practice Toolkit**: Collects operational tools for assessment, governance, and regulatory tracking.
 - **Bilingual UI**: Supports English and Chinese with selective machine translation for live feed items.
@@ -13,9 +14,17 @@ A legal-first AI intelligence website focused on cases, policy, enforcement, and
 ## Current Structure
 
 - `src/app/api/news/route.ts`: live legal/policy news aggregation
+- `src/lib/news-store.ts`: file-backed cache read/write and merge logic
 - `src/lib/policies.ts`: curated official policy and guidance resources
 - `src/lib/tools.ts`: practical legal/compliance toolkit registry
 - `src/components/*`: homepage sections for legal updates, policy guidance, and tools
+
+## Data Flow
+
+- On each request to `/api/news`, the app reads the local cache from `data/news-cache.json`.
+- It then fetches the latest feed entries, keeps only new or newer records, and merges them into the cache.
+- Cached items are sorted by `publishedAt` in descending order, so the newest items always appear first.
+- `data/news-cache.json` is ignored by Git by default to avoid dirtying the repository on each refresh.
 
 ## Getting Started
 
